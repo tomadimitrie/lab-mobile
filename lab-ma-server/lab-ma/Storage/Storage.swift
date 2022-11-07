@@ -12,6 +12,8 @@ import Network
 class Storage: NSObject, ObservableObject {
     @Published var events = [Event]()
     
+    var pending = [() -> Task<(), Never>]()
+    
     private var webSocket: URLSessionWebSocketTask?
     
     var connected = false
@@ -22,7 +24,7 @@ class Storage: NSObject, ObservableObject {
                 let realm = try! await Realm()
                 let realmObjects = realm.objects(Event.self)
                 do {
-                    let url = URL(string: "http://localhost:3000/")!
+                    let url = URL(string: "http://tomadimitrie.com:3000/")!
                     let (data, _) = try await URLSession.shared.data(from: url)
                     try realm.write {
                         realm.delete(realmObjects)
@@ -42,6 +44,12 @@ class Storage: NSObject, ObservableObject {
         }
     }
     
+    func initSocket() {
+        let session = URLSession(configuration: .default, delegate: self, delegateQueue: OperationQueue())
+        webSocket = session.webSocketTask(with: URL(string: "ws://tomadimitrie.com:3000/socket")!)
+        webSocket?.resume()
+    }
+    
     override init() {
         super.init()
         refresh()
@@ -49,13 +57,17 @@ class Storage: NSObject, ObservableObject {
         let monitor = NWPathMonitor()
         monitor.pathUpdateHandler = { path in
             self.connected = path.status == .satisfied
-            print(path.status)
+            if self.connected {
+                self.initSocket()
+                for operation in self.pending {
+                    _ = operation()
+                }
+                self.pending = []
+            }
         }
         monitor.start(queue: .init(label: "Network"))
         
-        let session = URLSession(configuration: .default, delegate: self, delegateQueue: OperationQueue())
-        webSocket = session.webSocketTask(with: URL(string: "ws://localhost:3000/socket")!)
-        webSocket?.resume()
+        initSocket()
     }
     
     func receive() {

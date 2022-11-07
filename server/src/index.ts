@@ -4,6 +4,9 @@ import bodyParser from "body-parser";
 import multer from "multer";
 import path from "path";
 import expressWs from "express-ws";
+import dotenv from 'dotenv'
+
+dotenv.config()
 
 const app = express();
 app.use("/static", express.static(path.join(__dirname, "..", "uploads/")));

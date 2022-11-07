@@ -11,6 +11,7 @@ struct EventCell: View {
     @EnvironmentObject var storage: Storage
     @AppStorage("username") var username: String = ""
     @State var confirmDelete = false
+    @State var showNetworkAlert = false
     
     let event: Event
     
@@ -21,8 +22,12 @@ struct EventCell: View {
     }
     
     private func updateFavorite() {
+        guard storage.connected else {
+            showNetworkAlert = true
+            return
+        }
         Task {
-            var request = URLRequest(url: URL(string: "http://localhost:3000/\(event.isFavorite ? "unfavorite" : "favorite")/\(event.id)")!)
+            var request = URLRequest(url: URL(string: "http://tomadimitrie.com:3000/\(event.isFavorite ? "unfavorite" : "favorite")/\(event.id)")!)
             request.httpMethod = "PUT"
             request.httpBody = try! JSONSerialization.data(withJSONObject: [
                 "username": username
@@ -33,8 +38,12 @@ struct EventCell: View {
     }
     
     private func delete() {
+        guard storage.connected else {
+            showNetworkAlert = true
+            return
+        }
         Task {
-            var request = URLRequest(url: URL(string: "http://localhost:3000/\(event.id)?username=\(username)")!)
+            var request = URLRequest(url: URL(string: "http://tomadimitrie.com:3000/\(event.id)?username=\(username)")!)
             request.httpMethod = "DELETE"
             
             _ = try! await URLSession.shared.data(for: request)
@@ -49,7 +58,7 @@ struct EventCell: View {
                     .frame(width: 150, height: 400)
             } else {
                 AsyncImage(
-                    url: URL(string: "http://localhost:3000/static/\(event.imageUrl)")!,
+                    url: URL(string: "http://tomadimitrie.com:3000/static/\(event.imageUrl)")!,
                     content: { image in
                         image
                             .resizable()
@@ -97,6 +106,11 @@ struct EventCell: View {
         .confirmationDialog("Confirm delete", isPresented: $confirmDelete) {
             Button("Confirm delete", role: .destructive) {
                 delete()
+            }
+        }
+        .alert("No network", isPresented: $showNetworkAlert) {
+            Button("Ok") {
+                
             }
         }
     }

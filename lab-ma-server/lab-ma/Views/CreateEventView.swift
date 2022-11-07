@@ -24,6 +24,8 @@ struct CreateEventView: View {
     @State private var imageData: Data? = nil
     
     @State private var showInputAlert = false
+    @State private var showNetworkAlert = false
+    @State private var showNetworkWarning = false
 
     var event: Event?
     
@@ -31,16 +33,19 @@ struct CreateEventView: View {
         if
             title == "" ||
             tags == "" ||
-            location == "" ||
-            imageData == nil
+            location == ""
         {
             showInputAlert = true
             return
         }
         
         if let event {
+            guard storage.connected else {
+                showNetworkAlert = true
+                return
+            }
             Task {
-                let url = URL(string: "http://localhost:3000/\(event.id)")!
+                let url = URL(string: "http://tomadimitrie.com:3000/\(event.id)")!
                 var request = URLRequest(url: url)
                 request.httpMethod = "PUT"
                 let form = MultipartForm(parts: [
@@ -57,22 +62,30 @@ struct CreateEventView: View {
                 dismiss()
             }
         } else {
-            Task {
-                let url = URL(string: "http://localhost:3000/")!
-                var request = URLRequest(url: url)
-                request.httpMethod = "POST"
-                let form = MultipartForm(parts: [
-                    .init(name: "image", data: UIImage(data: imageData!)!.pngData()!, filename: "\(title).png", contentType: "image/png"),
-                    .init(name: "name", data: title.data(using: .utf8)!),
-                    .init(name: "location", data: location.data(using: .utf8)!),
-                    .init(name: "date", data: date.ISO8601Format().data(using: .utf8)!),
-                    .init(name: "username", data: username.data(using: .utf8)!),
-                ] + tags.split(separator: ",").map { String($0).lowercased() }.map {
-                    MultipartForm.Part(name: "tags", data: $0.data(using: .utf8)!)
-                })
-                request.setValue(form.contentType, forHTTPHeaderField: "Content-Type")
-                request.httpBody = form.bodyData
-                _ = try! await URLSession.shared.data(for: request)
+            let task = {
+                Task {
+                    let url = URL(string: "http://tomadimitrie.com:3000/")!
+                    var request = URLRequest(url: url)
+                    request.httpMethod = "POST"
+                    let form = MultipartForm(parts: [
+                        .init(name: "image", data: UIImage(data: imageData!)!.pngData()!, filename: "\(title).png", contentType: "image/png"),
+                        .init(name: "name", data: title.data(using: .utf8)!),
+                        .init(name: "location", data: location.data(using: .utf8)!),
+                        .init(name: "date", data: date.ISO8601Format().data(using: .utf8)!),
+                        .init(name: "username", data: username.data(using: .utf8)!),
+                    ] + tags.split(separator: ",").map { String($0).lowercased() }.map {
+                        MultipartForm.Part(name: "tags", data: $0.data(using: .utf8)!)
+                    })
+                    request.setValue(form.contentType, forHTTPHeaderField: "Content-Type")
+                    request.httpBody = form.bodyData
+                    _ = try! await URLSession.shared.data(for: request)
+                }
+            }
+            if !storage.connected {
+                storage.pending.append(task)
+                showNetworkWarning = true
+            } else {
+                _ = task()
             }
         }
     }
@@ -140,7 +153,17 @@ struct CreateEventView: View {
                     tags = event.tags.joined(separator: ", ")
                     location = event.location
                     date = event.date
-                    imageData = try! Data(contentsOf: URL(string: "http://localhost:3000/static/\(event.imageUrl)")!)
+                    imageData = try? Data(contentsOf: URL(string: "http://tomadimitrie.com:3000/static/\(event.imageUrl)")!)
+                }
+            }
+            .alert("No network", isPresented: $showNetworkAlert) {
+                Button("Ok") {
+                    
+                }
+            }
+            .alert("No network, will be created when online", isPresented: $showNetworkWarning) {
+                Button("Ok") {
+                    
                 }
             }
         }

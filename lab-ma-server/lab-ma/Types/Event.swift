@@ -38,7 +38,7 @@ final class Event: Object, ObjectKeyIdentifiable {
             self.tags.append(tag)
         }
         self.createdBy = dto.createdBy
-        self.imageData = try! Data(contentsOf: URL(string: "http://localhost:3000/static/\(dto.imageUrl)")!)
+        self.imageData = try! Data(contentsOf: URL(string: "http://tomadimitrie.com:3000/static/\(dto.imageUrl)")!)
     }
 }
 
