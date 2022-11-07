@@ -10,6 +10,9 @@ import SwiftUI
 struct ContentView: View {
     @StateObject var storage = Storage()
     
+    @State var isAlertShown = false
+    @State var errorMessage: String? = nil
+    
     var body: some View {
         TabView {
             EventsView()
@@ -30,6 +33,16 @@ struct ContentView: View {
                 }
         }
         .environmentObject(storage)
+        .onReceive(storage.errorOccurred) { error in
+            self.errorMessage = error.errorDescription
+            self.isAlertShown = true
+        }
+        .alert(self.errorMessage ?? "", isPresented: self.$isAlertShown) {
+            Button("OK") {
+                self.isAlertShown = false
+                self.errorMessage = nil
+            }
+        }
     }
 }
 

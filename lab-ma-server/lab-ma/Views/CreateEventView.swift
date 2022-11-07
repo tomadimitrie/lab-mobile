@@ -45,6 +45,7 @@ struct CreateEventView: View {
                 return
             }
             Task {
+                print("sending update request...")
                 let url = URL(string: "http://tomadimitrie.com:3000/\(event.id)")!
                 var request = URLRequest(url: url)
                 request.httpMethod = "PUT"
@@ -59,11 +60,13 @@ struct CreateEventView: View {
                 request.setValue(form.contentType, forHTTPHeaderField: "Content-Type")
                 request.httpBody = form.bodyData
                 _ = try! await URLSession.shared.data(for: request)
+                print("update request sent")
                 dismiss()
             }
         } else {
             let task = {
                 Task {
+                    print("sending create request...")
                     let url = URL(string: "http://tomadimitrie.com:3000/")!
                     var request = URLRequest(url: url)
                     request.httpMethod = "POST"
@@ -79,6 +82,7 @@ struct CreateEventView: View {
                     request.setValue(form.contentType, forHTTPHeaderField: "Content-Type")
                     request.httpBody = form.bodyData
                     _ = try! await URLSession.shared.data(for: request)
+                    print("create request sent")
                 }
             }
             if !storage.connected {

@@ -23,6 +23,7 @@
 		E2008F6B29188DDD00502C4C /* MultipartForm in Frameworks */ = {isa = PBXBuildFile; productRef = E2008F6A29188DDD00502C4C /* MultipartForm */; };
 		E2008F712918A6BB00502C4C /* EventCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2008F702918A6BB00502C4C /* EventCell.swift */; };
 		E2008F742918AF3900502C4C /* Storage.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2008F732918AF3900502C4C /* Storage.swift */; };
+		E244D6152919A4E200988312 /* Errors.swift in Sources */ = {isa = PBXBuildFile; fileRef = E244D6142919A4E200988312 /* Errors.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -42,6 +43,7 @@
 		E2008F702918A6BB00502C4C /* EventCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventCell.swift; sourceTree = "<group>"; };
 		E2008F732918AF3900502C4C /* Storage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Storage.swift; sourceTree = "<group>"; };
 		E244D5EC2918C67F00988312 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		E244D6142919A4E200988312 /* Errors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Errors.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -77,6 +79,7 @@
 		E2008F4329182A0900502C4C /* lab-ma */ = {
 			isa = PBXGroup;
 			children = (
+				E244D6132919A4D500988312 /* Utils */,
 				E244D5EC2918C67F00988312 /* Info.plist */,
 				E2008F722918AF2500502C4C /* Storage */,
 				E2008F5F29182CC900502C4C /* Types */,
@@ -134,6 +137,14 @@
 				E2008F732918AF3900502C4C /* Storage.swift */,
 			);
 			path = Storage;
+			sourceTree = "<group>";
+		};
+		E244D6132919A4D500988312 /* Utils */ = {
+			isa = PBXGroup;
+			children = (
+				E244D6142919A4E200988312 /* Errors.swift */,
+			);
+			path = Utils;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -219,6 +230,7 @@
 				E2008F742918AF3900502C4C /* Storage.swift in Sources */,
 				E2008F5E29182CB100502C4C /* EventList.swift in Sources */,
 				E2008F712918A6BB00502C4C /* EventCell.swift in Sources */,
+				E244D6152919A4E200988312 /* Errors.swift in Sources */,
 				E2008F4729182A0900502C4C /* ContentView.swift in Sources */,
 				E2008F4529182A0900502C4C /* lab_maApp.swift in Sources */,
 				E2008F5929182AE700502C4C /* CreateEventView.swift in Sources */,

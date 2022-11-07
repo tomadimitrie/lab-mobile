@@ -27,6 +27,7 @@ struct EventCell: View {
             return
         }
         Task {
+            print("sending \(event.isFavorite ? "unfavorite" : "favorite") request...")
             var request = URLRequest(url: URL(string: "http://tomadimitrie.com:3000/\(event.isFavorite ? "unfavorite" : "favorite")/\(event.id)")!)
             request.httpMethod = "PUT"
             request.httpBody = try! JSONSerialization.data(withJSONObject: [
@@ -34,6 +35,7 @@ struct EventCell: View {
             ])
             request.addValue("application/json", forHTTPHeaderField: "Content-Type")
             _ = try! await URLSession.shared.data(for: request)
+            print("\(event.isFavorite ? "unfavorite" : "favorite") request sent")
         }
     }
     
@@ -43,10 +45,12 @@ struct EventCell: View {
             return
         }
         Task {
+            print("sending delete request...")
             var request = URLRequest(url: URL(string: "http://tomadimitrie.com:3000/\(event.id)?username=\(username)")!)
             request.httpMethod = "DELETE"
             
             _ = try! await URLSession.shared.data(for: request)
+            print("delete request sent")
         }
     }
     
