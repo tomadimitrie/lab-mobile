@@ -4,9 +4,9 @@ import bodyParser from "body-parser";
 import multer from "multer";
 import path from "path";
 import expressWs from "express-ws";
-import dotenv from 'dotenv'
+import dotenv from "dotenv";
 
-dotenv.config()
+dotenv.config();
 
 const app = express();
 app.use("/static", express.static(path.join(__dirname, "..", "uploads/")));
@@ -61,15 +61,16 @@ app.post("/", upload.single("image"), async (req, res) => {
     createdBy,
     imageUrl: req.file?.filename!,
   };
+  console.log(`creating event with data ${JSON.stringify(data)}`);
   const event = await prisma.event.create({
     data,
   });
-  ws.send(
-    JSON.stringify({
-      action: "create",
-      data: event,
-    })
-  );
+  const wsData = JSON.stringify({
+    action: "create",
+    data: event,
+  });
+  console.log(`socket: sending ${wsData}`);
+  ws.send(wsData);
   res.status(200).end();
 });
 
@@ -83,18 +84,19 @@ app.put("/:id", upload.single("image"), async (req, res) => {
     tags,
     imageUrl: req.file?.filename!,
   };
+  console.log(`updating event ${id} with data ${JSON.stringify(data)}`);
   const event = await prisma.event.update({
     where: {
       id,
     },
     data,
   });
-  ws.send(
-    JSON.stringify({
-      action: "update",
-      data: event,
-    })
-  );
+  const wsData = JSON.stringify({
+    action: "update",
+    data: event,
+  });
+  console.log(`socket: sending ${wsData}`);
+  ws.send(wsData);
   res.status(200).end();
 });
 
@@ -105,6 +107,7 @@ app.delete("/:id", async (req, res) => {
       id,
     },
   });
+  console.log(`deleting event with id ${id}`);
   const username = req.query.username;
   if (event!.createdBy !== username) {
     res.status(400).end();
@@ -114,20 +117,21 @@ app.delete("/:id", async (req, res) => {
       id,
     },
   });
-  ws.send(
-    JSON.stringify({
-      action: "delete",
-      data: {
-        id,
-      },
-    })
-  );
+  const wsData = JSON.stringify({
+    action: "delete",
+    data: {
+      id,
+    },
+  });
+  console.log(`socket: sending ${wsData}`);
+  ws.send(wsData);
   res.status(200).end();
 });
 
 app.put("/favorite/:id", async (req, res) => {
   const id = req.params.id;
   const username = req.body.username;
+  console.log(`favoriting event with id ${id} for username ${username}`);
   await prisma.event.update({
     where: {
       id,
@@ -138,20 +142,21 @@ app.put("/favorite/:id", async (req, res) => {
       },
     },
   });
-  ws.send(
-    JSON.stringify({
-      action: "favorite",
-      data: {
-        id,
-      },
-    })
-  );
+  const wsData = JSON.stringify({
+    action: "favorite",
+    data: {
+      id,
+    },
+  });
+  console.log(`socket: sending ${wsData}`);
+  ws.send(wsData);
   res.status(200).end();
 });
 
 app.put("/unfavorite/:id", async (req, res) => {
   const id = req.params.id;
   const username = req.body.username;
+  console.log(`unfavoriting event with id ${id} for username ${username}`);
   const event = await prisma.event.findUnique({
     where: {
       id,
@@ -167,14 +172,14 @@ app.put("/unfavorite/:id", async (req, res) => {
       },
     },
   });
-  ws.send(
-    JSON.stringify({
-      action: "unfavorite",
-      data: {
-        id,
-      },
-    })
-  );
+  const wsData = JSON.stringify({
+    action: "unfavorite",
+    data: {
+      id,
+    },
+  });
+  console.log(`socket: sending ${wsData}`);
+  ws.send(wsData);
   res.status(200).end();
 });
 
